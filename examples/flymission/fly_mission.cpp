@@ -1,6 +1,7 @@
 #include <iostream> 
 #include <thread> 
 #include <chrono>
+#include <future>
 #include <mavsdk/mavsdk.h> 
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
@@ -40,8 +41,45 @@ int main(int argc,char ** argv)
     // fly_mission.cpp.1
     std::vector<Mission::MissionItem> mission_items;
     Mission::MissionItem mission_item;
-    mission_item.latitude_deg = 47.398170327054473; // range: -90 to +90
-    mission_item.longitude_deg = 8.5456490218639658; // range: -180 to +180
+    // mission_item.latitude_deg = 47.398170327054473; // range: -90 to +90
+    // mission_item.longitude_deg = 8.5456490218639658; // range: -180 to +180
+    mission_item.latitude_deg = 47.396088; // range: -90 to +90
+    mission_item.longitude_deg = 8.545059; // range: -180 to +180
+    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
+    mission_item.speed_m_s = 5.0f;
+    mission_item.is_fly_through = false; // stop on the waypoint
+    mission_items.push_back(mission_item);
+    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
+    mission_item.latitude_deg = 47.396878; // range: -90 to +90
+    mission_item.longitude_deg = 8.541099; // range: -180 to +180
+    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
+    mission_item.speed_m_s = 5.0f;
+    mission_item.is_fly_through = false; // stop on the waypoint
+    mission_items.push_back(mission_item);
+    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
+    mission_item.latitude_deg = 47.399125; // range: -90 to +90
+    mission_item.longitude_deg = 8.542532; // range: -180 to +180
+    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
+    mission_item.speed_m_s = 5.0f;
+    mission_item.is_fly_through = false; // stop on the waypoint
+    mission_items.push_back(mission_item);
+    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
+    mission_item.latitude_deg = 47.399811; // range: -90 to +90
+    mission_item.longitude_deg = 8.544435; // range: -180 to +180
+    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
+    mission_item.speed_m_s = 5.0f;
+    mission_item.is_fly_through = false; // stop on the waypoint
+    mission_items.push_back(mission_item);
+    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
+    mission_item.latitude_deg = 47.399557; // range: -90 to +90
+    mission_item.longitude_deg = 8.547536; // range: -180 to +180
+    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
+    mission_item.speed_m_s = 5.0f;
+    mission_item.is_fly_through = false; // stop on the waypoint
+    mission_items.push_back(mission_item);
+    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
+    mission_item.latitude_deg = 47.396088; // range: -90 to +90
+    mission_item.longitude_deg = 8.545059; // range: -180 to +180
     mission_item.relative_altitude_m = 10.0f; // takeoff altitude
     mission_item.speed_m_s = 5.0f;
     mission_item.is_fly_through = false; // stop on the waypoint
@@ -67,13 +105,26 @@ int main(int argc,char ** argv)
     std::cout << "Arming failed:" << arm_result << std::endl;
     return 1;
     }
-    // takeoff.cpp
-    std::cout << "Taking off..." << std::endl;
-    const Action::Result takeoff_result = action->takeoff();
-    if (takeoff_result != Action::Result::Success) {
-    std::cout << "Takeoff failed:" << takeoff_result << std::endl;
-    return 1;
+    // mission progress
+    std::cout << "Starting mission." << std::endl;
+    auto start_prom = std::make_shared<std::promise<Mission::Result>>();
+    auto future_start_result = start_prom->get_future();
+    mission->start_mission_async([start_prom](Mission::Result start_result) {
+        start_prom->set_value(start_result);
+        std::cout << "Started mission." << std::endl;
+    });
+    const Mission::Result start_result = future_start_result.get();
+    if (start_result != Mission::Result::Success) { return -1; } // Mission start failed
+    while (!mission->is_mission_finished().second) {
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // Not finished mission.
     }
+    // // takeoff.cpp
+    // std::cout << "Taking off..." << std::endl;
+    // const Action::Result takeoff_result = action->takeoff();
+    // if (takeoff_result != Action::Result::Success) {
+    // std::cout << "Takeoff failed:" << takeoff_result << std::endl;
+    // return 1;
+    // }
     // land.cpp
     std::this_thread::sleep_for(std::chrono::seconds(10)); // stuck air
     std::cout << "Landing..." << std::endl;

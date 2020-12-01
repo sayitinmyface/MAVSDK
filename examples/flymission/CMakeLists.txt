@@ -19,4 +19,5 @@ MAVSDK::mavsdk_telemetry
 MAVSDK::mavsdk_action
 MAVSDK::mavsdk
 MAVSDK::mavsdk_offboard
+MAVSDK::mavsdk_mission
 )
