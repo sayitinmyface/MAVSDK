@@ -48,6 +48,9 @@ int main(int argc,char ** argv)
     mission_item.relative_altitude_m = 10.0f; // takeoff altitude
     mission_item.speed_m_s = 5.0f;
     mission_item.is_fly_through = false; // stop on the waypoint
+    mission_item.gimbal_pitch_deg = 4.5f;
+    mission_item.gimbal_yaw_deg = 1.5f;
+    mission_item.camera_action = Mission::MissionItem::CameraAction::StartVideo;
     mission_items.push_back(mission_item);
     std::cout << "mission_items.size : " << mission_items.size() << std::endl;
     mission_item.latitude_deg = 47.396878; // range: -90 to +90
@@ -83,6 +86,7 @@ int main(int argc,char ** argv)
     mission_item.relative_altitude_m = 10.0f; // takeoff altitude
     mission_item.speed_m_s = 5.0f;
     mission_item.is_fly_through = false; // stop on the waypoint
+    mission_item.camera_action = Mission::MissionItem::CameraAction::StopVideo;
     mission_items.push_back(mission_item);
     std::cout << "mission_items.size : " << mission_items.size() << std::endl;
     // fly_mission.cpp.2
