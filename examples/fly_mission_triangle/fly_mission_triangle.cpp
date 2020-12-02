@@ -1,3 +1,4 @@
+#include <math.h>
 #include <iostream> 
 #include <thread> 
 #include <chrono>
@@ -6,10 +7,19 @@
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
 #include <mavsdk/plugins/mission/mission.h>
-
+#define PI 3.14159265358979323846
 using namespace mavsdk;
 using namespace std;
 // 
+typedef double custem_t;
+custem_t degreetoradian(custem_t degree){return ((PI/180)*degree);}
+// setlatlon()
+// {
+//     custem_t radian = degreetoradian(std::stoi(argv[1]));
+//     custem_t target_x = current_x + distance * cos(radian);
+//     custem_t target_y = current_y + distance * sin(radian);
+// }
+
 int main(int argc,char ** argv)
 {
     Mavsdk mavsdk;
@@ -43,53 +53,39 @@ int main(int argc,char ** argv)
     Mission::MissionItem mission_item;
     // mission_item.latitude_deg = 47.398170327054473; // range: -90 to +90
     // mission_item.longitude_deg = 8.5456490218639658; // range: -180 to +180
-    mission_item.latitude_deg = 47.396088; // range: -90 to +90
-    mission_item.longitude_deg = 8.545059; // range: -180 to +180
+    // 처음 지점
+    mission_item.latitude_deg = 47.396102; // range: -90 to +90      
+    mission_item.longitude_deg = 8.545067; // range: -180 to +180
     mission_item.relative_altitude_m = 10.0f; // takeoff altitude
     mission_item.speed_m_s = 5.0f;
     mission_item.is_fly_through = false; // stop on the waypoint
-    mission_item.gimbal_pitch_deg = 4.5f;
-    mission_item.gimbal_yaw_deg = 1.5f;
-    mission_item.camera_action = Mission::MissionItem::CameraAction::StartVideo;
-    mission_item.camera_photo_interval_s = 1.0f;
+    // mission_item.gimbal_pitch_deg = 4.5f;
+    // mission_item.gimbal_yaw_deg = 1.5f;
+    // mission_item.camera_action = Mission::MissionItem::CameraAction::StartVideo;
+    // mission_item.camera_photo_interval_s = 1.0f;
     mission_items.push_back(mission_item);
-    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
-    mission_item.latitude_deg = 47.396878; // range: -90 to +90
-    mission_item.longitude_deg = 8.541099; // range: -180 to +180
-    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
-    mission_item.speed_m_s = 5.0f;
-    mission_item.is_fly_through = false; // stop on the waypoint
+    // std::cout << "mission_items.size : " << mission_items.size() << std::endl;
+    custem_t circle_lat = 47.397574,circle_lon = 8.544700, distance = 0.00001 ;
+    custem_t radian;
+    for (int i = 10; i <= 90 ; i+=10)
+    {
+        radian = degreetoradian(i);
+        mission_item.latitude_deg = circle_lat + distance * cos(radian);
+        mission_item.longitude_deg = circle_lon + distance * sin(radian);    
+        mission_items.push_back(mission_item);
+    }
+    // 둘째 지점
+    mission_item.latitude_deg = 47.398599; // range: -90 to +90      
+    mission_item.longitude_deg = 8.544497; // range: -180 to +180
     mission_items.push_back(mission_item);
-    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
-    mission_item.latitude_deg = 47.399125; // range: -90 to +90
-    mission_item.longitude_deg = 8.542532; // range: -180 to +180
-    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
-    mission_item.speed_m_s = 5.0f;
-    mission_item.is_fly_through = false; // stop on the waypoint
+    // 셋째 지점
+    mission_item.latitude_deg = 47.396841; // range: -90 to +90      
+    mission_item.longitude_deg = 8.541353; // range: -180 to +180
     mission_items.push_back(mission_item);
-    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
-    mission_item.latitude_deg = 47.399811; // range: -90 to +90
-    mission_item.longitude_deg = 8.544435; // range: -180 to +180
-    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
-    mission_item.speed_m_s = 5.0f;
-    mission_item.is_fly_through = false; // stop on the waypoint
+    // 처음지점으로 돌아 옴
+    mission_item.latitude_deg = 47.396102; // range: -90 to +90      
+    mission_item.longitude_deg = 8.545067; // range: -180 to +180
     mission_items.push_back(mission_item);
-    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
-    mission_item.latitude_deg = 47.399557; // range: -90 to +90
-    mission_item.longitude_deg = 8.547536; // range: -180 to +180
-    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
-    mission_item.speed_m_s = 5.0f;
-    mission_item.is_fly_through = false; // stop on the waypoint
-    mission_items.push_back(mission_item);
-    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
-    mission_item.latitude_deg = 47.396088; // range: -90 to +90
-    mission_item.longitude_deg = 8.545059; // range: -180 to +180
-    mission_item.relative_altitude_m = 10.0f; // takeoff altitude
-    mission_item.speed_m_s = 5.0f;
-    mission_item.is_fly_through = false; // stop on the waypoint
-    mission_item.camera_action = Mission::MissionItem::CameraAction::StopVideo;
-    mission_items.push_back(mission_item);
-    std::cout << "mission_items.size : " << mission_items.size() << std::endl;
     // fly_mission.cpp.2
     auto prom = std::make_shared<std::promise<Mission::Result>>();
     auto future_result = prom->get_future();
